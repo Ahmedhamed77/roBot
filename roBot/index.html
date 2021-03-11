@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 robot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet" type='text/css'>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="wrapper">
+
+    <h1>I'm not a robot 🤖</h1>
+
+    <select name="voice" id="voices">
+        <option value="">Выберите голос</option>
+    </select>
+
+    <label for="rate">Скорость:</label>
+    <input name="rate" type="range" min="1" max="2" value="1" step="0.1">
+
+    <label for="pitch">Тембер:</label>
+
+    <input name="pitch" type="range" min="0" max="3" step="0.1">
+    <textarea
+            name="text">Поздравляем, ты крутой фронтендер🔥 Осталось выполнить финальное задание - научить робота говорить😳</textarea>
+
+    <div class="robot">
+        <div class="head">
+            <div class="eyes">
+                <div class="eyeball eyeball_left"></div>
+                <div class="eyeball eyeball_right"></div>
+            </div>
+            <div class="mouth">
+                <div class="mouth-container">
+                    <div class="mouth-container-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="stop-btn">Стоп</button>
+    <button id="speak-btn">Прочитать</button>
+
+</div>
+
+<div class='circle xxlarge shade1'></div>
+<div class='circle xlarge shade2'></div>
+<div class='circle large shade3'></div>
+<div class='circle mediun shade4'></div>
+<div class='circle small shade5'></div>
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display:none">
+    <defs>
+        <!-- Low -->
+        <filter id="low-0">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="0"/>
+            <feDisplacementMap id="displacement" in="SourceGraphic" in2="noise" scale="1"/>
+        </filter>
+        <filter id="low-1">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="30"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5"/>
+        </filter>
+        <filter id="low-2">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="2"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1"/>
+        </filter>
+        <filter id="low-3">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="30"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5"/>
+        </filter>
+        <filter id="low-4">
+            <feTurbulence id="turbulence" baseFrequency="0.1" numOctaves="3" result="noise" seed="4"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.5"/>
+        </filter>
+        <!-- Listening -->
+        <filter id="listening-0">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="0"/>
+            <feDisplacementMap id="displacement" in="SourceGraphic" in2="noise" scale="2"/>
+        </filter>
+        <filter id="listening-1">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="30"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+        </filter>
+        <filter id="listening-2">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="2"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"/>
+        </filter>
+        <filter id="listening-3">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="30"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+        </filter>
+        <filter id="listening-4">
+            <feTurbulence id="turbulence" baseFrequency="0.1" numOctaves="3" result="noise" seed="4"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1"/>
+        </filter>
+        <!-- Speaking -->
+        <filter id="speaking-0">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="0"/>
+            <feDisplacementMap id="displacement" in="SourceGraphic" in2="noise" scale="12"/>
+        </filter>
+        <filter id="speaking-1">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="30"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="13"/>
+        </filter>
+        <filter id="speaking-2">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="2"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="12"/>
+        </filter>
+        <filter id="speaking-3">
+            <feTurbulence id="turbulence" baseFrequency="0.02" numOctaves="3" result="noise" seed="30"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="13"/>
+        </filter>
+        <filter id="speaking-4">
+            <feTurbulence id="turbulence" baseFrequency="0.1" numOctaves="3" result="noise" seed="4"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="11"/>
+        </filter>
+    </defs>
+</svg>
+
+<script>
+    const speech = new SpeechSynthesisUtterance();
+    let voices = [];
+    const voiceSelect = document.querySelector('[name="voice"]');
+    const options = document.querySelectorAll('[type="range"], [name="rate"]');
+    const speakButton = document.querySelector('#speak-btn');
+    const stopButton = document.querySelector('#stop-btn');
+    const robot = document.querySelector('.robot');
+
+    speech.text = document.querySelector('[name="text"]').value;
+
+    function showVoices() {
+        voices = this.getVoices();
+        const voiceOption = voices
+            .filter(voice => voice.lang.includes('ru') || voice.lang.includes('en'))
+            .map(voice => `<option value="${voice.name}">${voice.name}(${voice.lang})</option>`).join('')
+        voiceSelect.innerHTML = voiceOption;
+    }
+
+    function setVoice() {
+        //changing voice so we need to find it first
+        speech.voice = voices.find(voice => voice.name === this.value);
+        toggle();
+    }
+
+    function toggle(startOver = true) {
+        // everytime we change should start from the beg and stop the other one
+        speechSynthesis.cancel(); //stop speaking
+        robot.classList.remove('robot_speaking');
+        if (startOver) {
+            speechSynthesis.speak(speech); // just restart it and start again
+            robot.classList.add('robot_speaking');
+        }
+
+    }
+
+    function setOption() {
+        console.log(this.name, this.value);
+        speech[this.name] = this.value;
+        toggle();
+    }
+
+    speechSynthesis.addEventListener('voiceschanged', showVoices)
+    voiceSelect.addEventListener('change', setVoice);
+    options.forEach(option => option.addEventListener('change', setOption));
+    speakButton.addEventListener('click', toggle);
+    stopButton.addEventListener('click', () => toggle(null, false));
+
+
+</script>
+</body>
+
+</html>
